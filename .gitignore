@@ -1,0 +1,17 @@
+
+# Secrets
+.env
+.env.*
+!.env.example
+credentials.json
+service-account*.json
+secrets/
+
+# Python virtual environment and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local IDE files
+.idea/
