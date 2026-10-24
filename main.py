@@ -38,23 +38,21 @@ def get_worksheet_spreadsheet(client):
     return spreadsheet, worksheet
 
 
-
 def main():
     client = authenticate()
     spreadsheet, sheet1 = get_worksheet_spreadsheet(client)
 
+    sheet1_list_of_row  = sheet1.get_all_records()
+    for index, row in enumerate (sheet1_list_of_row):
+        # this is find the row need to be updated
+        if row["Status"] != "Sent":
+            #update the row
+            sheet1.update_cell(index+2, 7, "Sent")
 
-    #Sheet1 is the main one
-    sheet1 = sheet1.get_all_records()
 
 
 
 
-    # print(f"Spreadsheet: {spreadsheet.title}")
-    # print(f"Rows retrieved: {len(sheet1)}")
-    # print(type(spreadsheet))
-    # for each_row in sheet1:
-    #     print(each_row)
 
 
 
