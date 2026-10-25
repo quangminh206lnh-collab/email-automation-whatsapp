@@ -18,7 +18,10 @@ SCOPES = [
 SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
 CREDENTIALS_FILE = "credentials.json"
 
-
+API_TOKEN=os.getenv("API_TOKEN")
+PHONE_NUMBER=os.getenv("FROM_PHONE_NUMBER")
+TO_PHONE_NUMBER = os.getenv("TO_PHONE_NUMBER")
+URL = "https://app.assistro.co/api/v1/wapushplus/single/message"
 
 
 
@@ -48,12 +51,41 @@ def get_worksheet_spreadsheet(client):
     return spreadsheet, worksheet
 
 
+#Send a message to WHATSAPP
+def send_whatsapp(phone_number, message):
+    if not API_TOKEN:
+        raise ValueError("ASSISTRO_API_TOKEN is missing from .env")
 
-#write message to send
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json",
+
+    }
+
+    payload = {
+        "msgs": [
+            {
+                "number": phone_number,
+                "message": message,
+                "type": 1,
+            }
+        ]
+    }
+
+    response = requests.post(
+        URL,
+        headers=headers,
+        json=payload,
+        timeout=30,
+    )
+    response.raise_for_status()
+    return response.status_code
+
+
 def write_message(name,phone_num, date, time, service):
     message = ("This is new customer info:\n"
                f"Name: {name}\n"
-               f"Phone: {phone_num}\n"
+               f"Phone  : {phone_num}\n"
                f"Date: {date}\n"
                f"Time: {time}\n"
                f"Service: {service}\n")
@@ -76,8 +108,13 @@ def main():
                 date=row["Date"],
                 time=row["Time"],
                 service = row["Service"],)
-            print(message)
-
+            try:
+                send_whatsapp(TO_PHONE_NUMBER, message)
+                sheet1.update_cell(index+2,8, "Sent")
+                print(f"Successfully sent the message to {row["Name"]}")
+            except requests.RequestException as e:
+                sheet1.update_cell(index + 2, 8, "Failed")
+                print(f"Failed to send WhatsApp message: {e}")
 
 
 
