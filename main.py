@@ -1,10 +1,10 @@
 
 import os
-
 import gspread
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
 import requests
+
 
 # Load environment variables from .env
 load_dotenv()
@@ -104,34 +104,39 @@ def main():
     sheet1_list_of_row = sheet1.get_all_records()
 
     # enumerate() gives each row an index, starting from 0
-    # for index, row in enumerate(sheet1_list_of_row):
-    #
-    #     # Skip rows that have already been sent
-    #     if row["Status"] != "Sent":
-    #
-    #         sheet1.update_cell(index + 2, 7, "Sent")
-    #
-    #         message = write_message(
-    #             name=row["Name"],
-    #             phone_num=row["Phone number"],
-    #             date=row["Date"],
-    #             time=row["Time"],
-    #             service=row["Service"],
-    #         )
-    #
-    #         try:
-    #             send_whatsapp(TO_PHONE_NUMBER, message)
-    #             sheet1.update_cell(index + 2, 7, "Sent")
-    #             print(f"Successfully sent the message customer name: {row['Name']}")
-    #
-    #         # Catch request errors, such as timeouts or HTTP errors
-    #         except requests.RequestException as error:
-    #             sheet1.update_cell(index + 2, 7, "Failed")
-    #             print(f"Failed to send WhatsApp message: {error}")
+    for index, row in enumerate(sheet1_list_of_row):
+
+        # Skip rows that have already been sent
+        if row["Status"] != "Sent":
+
+            message = write_message(
+                name=row["Name"],
+                phone_num=row["Phone number"],
+                date=row["Date"],
+                time=row["Time"],
+                service=row["Service"],
+            )
+
+            try:
+                send_whatsapp(TO_PHONE_NUMBER, message)
+
+                sheet1.update_cell(index + 2, 7, "Sent")
+                print(f"Successfully sent the message customer name: {row['Name']}")
+
+            # Catch request errors, such as timeouts or HTTP errors
+            except requests.RequestException as error:
+                sheet1.update_cell(index + 2, 7, "Failed")
+                print(f"Failed to send WhatsApp message: {error}")
 
 
-    if all(row["Status"] == "Sent" for row in sheet1_list_of_row):
+
+    update_sheet = sheet1.get_all_records()
+    if all(row["Status"] == "Sent" for row in update_sheet):
         print("All info booking has been sent.")
+    else:
+        print("Some bookings may have not been sent.")
+
+
 
 # Run main() only when this file is executed directly
 if __name__ == "__main__":
