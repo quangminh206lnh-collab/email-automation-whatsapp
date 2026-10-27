@@ -136,7 +136,7 @@ The structure above represents the expected local project layout; secret files s
 ### 1. Clone the Repository
 
 ```bash
-git clone <...>
+git clone https://github.com/quangminh206lnh-collab/email-automation-whatsapp.git
 cd whatsapp-automation-message
 ```
 
